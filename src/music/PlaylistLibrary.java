@@ -2,79 +2,77 @@ package music;
 
 import java.util.*;
 
-/**
- * This class represents a library of song playlists.
- *
- * An ArrayList of Playlist objects represents the various playlists 
- * within one's library.
- * 
- * @author Jeremy Hui
- * @author Vian Miranda
- */
 public class PlaylistLibrary {
 
     private ArrayList<Playlist> songLibrary; // contains various playlists
 
-    /**
-     * DO NOT EDIT!
-     * Constructor for Library.
-     * 
-     * @param songLibrary passes in ArrayList of playlists
-     */
     public PlaylistLibrary(ArrayList<Playlist> songLibrary) {
         this.songLibrary = songLibrary;
     }
 
-    /**
-     * DO NOT EDIT!
-     * Default constructor for an empty library. 
-     */
     public PlaylistLibrary() {
         this(null);
     }
 
-    /**
-     * This method reads the songs from an input csv file, and creates a 
-     * playlist from it.
-     * Each song is on a different line.
-     * 
-     * 1. Open the file using StdIn.setFile(filename);
-     * 
-     * 2. Declare a reference that will refer to the last song of the circular linked list.
-     * 
-     * 3. While there are still lines in the input file:
-     *      1. read a song from the file
-     *      2. create an object of type Song with the song information
-     *      3. Create a SongNode object that holds the Song object from step 3.2.
-     *      4. insert the Song object at the END of the circular linked list (use the reference from step 2)
-     *      5. increase the count of the number of songs
-     * 
-     * 4. Create a Playlist object with the reference from step (2) and the number of songs in the playlist
-     * 
-     * 5. Return the Playlist object
-     * 
-     * Each line of the input file has the following format:
-     *      songName,artist,year,popularity,link
-     * 
-     * To read a line, use StdIn.readline(), then use .split(",") to extract 
-     * fields from the line.
-     * 
-     * If the playlist is empty, return a Playlist object with null for its last, 
-     * and 0 for its size.
-     * 
-     * The input file has Songs in decreasing popularity order.
-     * 
-     * DO NOT implement a sorting method, PRACTICE add to end.
-     * 
-     * @param filename the playlist information input file
-     * @return a Playlist object, which contains a reference to the LAST song 
-     * in the ciruclar linkedlist playlist and the size of the playlist.
-     */
-    public Playlist createPlaylist(String filename) {
+    public Playlist createPlaylist(String filename)
+    {
+        StdIn.setFile(filename);
 
-        // WRITE YOUR CODE HERE
+        // Beginning and the end of the playlists.
+        SongNode first = null;
+        SongNode last = null;
+        // Counts the songs added to the playlists
+        int songCount = 0;
 
-        return null; // update this line with your returning Playlist
+        // IF there are more lines to read from, keep running.
+        while(StdIn.hasNextLine())
+        {
+
+            String line = StdIn.readLine();
+            // Tries to make a song from the line
+            Song newSong = parseSongFromLine(line);
+
+            // If the top newSong fails, move to next line
+            if (newSong == null)
+            {
+                continue;
+            }
+
+            // Create the container for the song.
+            SongNode newNode = new SongNode(newSong, null);
+
+            // if this is the first song added
+            if (first == null) {
+                first = newNode; // declare start
+                last = newNode; // declare end
+                last.setNext(first);
+            } else {
+                // if this isn't the first song
+                newNode.setNext(first);
+                last.setNext(newNode);
+                last = newNode;
+            }
+            songCount++;
+        }
+
+        return new Playlist(last, songCount); // return the play list
+    }
+    // Create a song from a line, adds song details,
+    private Song parseSongFromLine(String line) {
+        String[] songDetails = line.split(",");
+
+        // if the song doesn't contain all details, then the song is incomplete and wont make the song
+        if (songDetails.length != 5) {
+            return null;
+        }
+
+        // attempt to create a song
+        try {
+            return new Song(songDetails[0], songDetails[1], Integer.parseInt(songDetails[2]), Integer.parseInt(songDetails[3]), songDetails[4]);
+        } catch (NumberFormatException e) {
+            // if the song details are invalid, "Year is not a # or something"
+            return null;
+        }
     }
 
     /**
@@ -105,7 +103,6 @@ public class PlaylistLibrary {
             songLibrary.add(playlistIndex, createPlaylist(filename));
         }        
     }
-
     /**
      * ****DO NOT**** UPDATE THIS METHOD
      * This method is already implemented for you.
@@ -145,8 +142,19 @@ public class PlaylistLibrary {
      * added to the library
      */
     public void addAllPlaylists(String[] filenames) {
-        
-        // WRITE YOUR CODE HERE
+
+        // 1. Initialize the songLibrary if it is null.
+        // Check if songLibrary is null. If it is, create a new ArrayList for it.
+        if (songLibrary == null) {
+            songLibrary = new ArrayList<Playlist>();
+        }
+
+        // 2. For each filename in our filenames array...
+        for (String filename : filenames) {
+            // Using the provided addPlaylist method,
+            // add a playlist for each filename to the end of the songLibrary.
+            addPlaylist(filename, songLibrary.size());  // The size of the songLibrary gives us the next available index.
+        }
     }
 
     /**
@@ -170,9 +178,66 @@ public class PlaylistLibrary {
      * false otherwise. 
      */
     public boolean insertSong(int playlistIndex, int position, Song song) {
-        // WRITE YOUR CODE HERE
 
-        return true; // update the return value
+        // Ensure songLibrary has been initialized
+        if (songLibrary == null) {
+            return false;
+        }
+
+        // Step 1: Check if the playlist index is valid.
+        if (playlistIndex < 0 || playlistIndex >= songLibrary.size()) {
+            return false;
+        }
+
+        Playlist playlist = songLibrary.get(playlistIndex);
+
+
+        // Check if the playlist or its last node is null
+        if (playlist == null || playlist.getLast() == null) {
+            return false;
+        }
+
+        int playlistSize = playlist.getSize();
+
+        // Step 2: Check if the position is valid.
+        if (position < 1 || position > playlistSize + 1) {
+            return false;
+        }
+
+        // Create the new song node.
+        SongNode newNode = new SongNode(song, null);
+
+        // Step 3: Insert the song at the given position.
+
+        // Special case: inserting at the beginning.
+        if (position == 1) {
+            newNode.setNext(playlist.getLast().getNext()); // Point to the current first song.
+            playlist.getLast().setNext(newNode);  // Update the last song's next pointer.
+            if (playlistSize == 0) { // If the playlist was empty, this is also the last song.
+                playlist.setLast(newNode);
+            }
+        } else {
+            SongNode current = playlist.getLast().getNext(); // Start at the first song.
+            for (int i = 1; i < position - 1; i++) { // Traverse until the position before where we want to insert.
+                current = current.getNext();
+
+                // Ensure current's next is not null before moving on
+                if (current == null || current.getNext() == null) {
+                    return false;
+                }
+        }
+            newNode.setNext(current.getNext());  // Set the new node's next pointer.
+            current.setNext(newNode);  // Insert the new node after the current node.
+
+            // If we're inserting at the end, update the playlist's last node pointer.
+            if (position == playlistSize + 1) {
+                playlist.setLast(newNode);
+            }
+        }
+        // Step 4: Increase the playlist's size.
+        playlist.setSize(playlistSize + 1);
+
+        return true;
     }
 
     /**
@@ -251,8 +316,7 @@ public class PlaylistLibrary {
      * second, etc). 
      * 
      * 4. Update the old playlist with the new shuffled playlist.
-     *    
-     * @param index the playlist to shuffle in songLibrary
+     *
      */
     public void shufflePlaylist(int playlistIndex) {
         // WRITE YOUR CODE HERE

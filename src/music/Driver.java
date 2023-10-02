@@ -26,7 +26,6 @@ public class Driver {
             "reversePlaylist", "mergePlaylists", "shufflePlaylist", "sortPlaylist", "playPlaylist", "printLibrary"};
         String[] options = {"Test another method", "Quit"};
 		int controlChoice = 1;
-
         do {
             StdOut.println("\nWhat method would you like to test?");
             for (int ii = 0; ii < methods.length; ii++) 
