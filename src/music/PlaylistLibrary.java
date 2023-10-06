@@ -252,36 +252,44 @@ public class PlaylistLibrary {
         return false; // Song not found in the playlist.
     }
 
+
     public void reversePlaylist(int playlistIndex) {
-        // Validate the index and get the playlist
+        // Check if the playlistIndex is valid.
         if (playlistIndex < 0 || playlistIndex >= songLibrary.size()) {
-            System.out.println("Invalid playlist index.");
-            return;
+            throw new IllegalArgumentException("Invalid playlist index.");
         }
+
+        // Get the playlist and its last node.
         Playlist playlist = songLibrary.get(playlistIndex);
+        SongNode lastNode = playlist.getLast();
 
-        // Check for empty or single-element list
-        if (playlist.getSize() <= 1) {
-            System.out.println("Playlist too small to reverse.");
-            return;
+        // Check if the playlist is empty or has only one song.
+        if (lastNode == null || lastNode.getNext() == lastNode) {
+            return; // Nothing to reverse.
         }
 
-        // Initialize pointers
-        SongNode previousNode = playlist.getLast();  // The last node will become the first
-        SongNode currentNode = previousNode.getNext();  // This is the actual first node of the original list
-        SongNode nextNode;
+        // Initialize pointers.
+        SongNode prev = lastNode;
+        SongNode current = lastNode.getNext();
+        SongNode next = null;
 
-        // Iterate through the list to reverse it
+        int count = 0; // Debug: count the number of nodes traversed.
         do {
-            nextNode = currentNode.getNext();
-            currentNode.setNext(previousNode);
-            previousNode = currentNode;
-            currentNode = nextNode;
-        } while (currentNode != playlist.getLast().getNext());
+            next = current.getNext(); // Save the next node.
+            current.setNext(prev);   // Reverse the link.
+            prev = current;          // Move one step forward in the list.
+            current = next;          // Move one step forward in the list.
 
-        // Update the last node of the playlist
-        playlist.setLast(previousNode);
+            count++; // Debug: increment the count.
+        } while (current != lastNode.getNext()); // Until we reach the starting node.
+
+        // Debug: print the count.
+        System.out.println("Nodes traversed during reversal: " + count);
+
+        // Update the last node in the playlist.
+        playlist.setLast(lastNode);
     }
+
 
 
 
