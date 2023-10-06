@@ -14,8 +14,7 @@ public class PlaylistLibrary {
         this(null);
     }
 
-    public Playlist createPlaylist(String filename)
-    {
+    public Playlist createPlaylist(String filename) {
         StdIn.setFile(filename);
 
         // Beginning and the end of the playlists.
@@ -25,16 +24,14 @@ public class PlaylistLibrary {
         int songCount = 0;
 
         // IF there are more lines to read from, keep running.
-        while(StdIn.hasNextLine())
-        {
+        while (StdIn.hasNextLine()) {
 
             String line = StdIn.readLine();
             // Tries to make a song from the line
             Song newSong = parseSongFromLine(line);
 
             // If the top newSong fails, move to next line
-            if (newSong == null)
-            {
+            if (newSong == null) {
                 continue;
             }
 
@@ -57,6 +54,7 @@ public class PlaylistLibrary {
 
         return new Playlist(last, songCount); // return the play list
     }
+
     // Create a song from a line, adds song details,
     private Song parseSongFromLine(String line) {
         String[] songDetails = line.split(",");
@@ -77,70 +75,54 @@ public class PlaylistLibrary {
 
     /**
      * ****DO NOT**** UPDATE THIS METHOD
-     * This method is already implemented for you. 
-     * 
+     * This method is already implemented for you.
+     * <p>
      * Adds a new playlist into the song library at a certain index.
-     * 
+     * <p>
      * 1. Calls createPlayList() with a file containing song information.
      * 2. Adds the new playlist created by createPlayList() into the songLibrary.
-     * 
+     * <p>
      * Note: initialize the songLibrary if it is null
-     * 
-     * @param filename the playlist information input file
-     * @param playlistIndex the index of the location where the playlist will 
-     * be added 
+     *
+     * @param filename      the playlist information input file
+     * @param playlistIndex the index of the location where the playlist will
+     *                      be added
      */
     public void addPlaylist(String filename, int playlistIndex) {
-        
+
         /* DO NOT UPDATE THIS METHOD */
 
-        if ( songLibrary == null ) {
+        if (songLibrary == null) {
             songLibrary = new ArrayList<Playlist>();
         }
-        if ( playlistIndex >= songLibrary.size() ) {
+        if (playlistIndex >= songLibrary.size()) {
             songLibrary.add(createPlaylist(filename));
         } else {
             songLibrary.add(playlistIndex, createPlaylist(filename));
-        }        
+        }
     }
+
     /**
      * ****DO NOT**** UPDATE THIS METHOD
      * This method is already implemented for you.
-     * 
+     * <p>
      * It takes a playlistIndex, and removes the playlist located at that index.
-     * 
+     *
      * @param playlistIndex the index of the playlist to remove
      * @return true if the playlist has been deleted
      */
     public boolean removePlaylist(int playlistIndex) {
         /* DO NOT UPDATE THIS METHOD */
 
-        if ( songLibrary == null || playlistIndex >= songLibrary.size() ) {
+        if (songLibrary == null || playlistIndex >= songLibrary.size()) {
             return false;
         }
 
         songLibrary.remove(playlistIndex);
-            
+
         return true;
     }
-    
-    /** 
-     * 
-     * Adds the playlists from many files into the songLibrary
-     * 
-     * 1. Initialize the songLibrary
-     * 
-     * 2. For each of the filenames
-     *       add the playlist into songLibrary
-     * 
-     * The playlist will have the same index in songLibrary as it has in
-     * the filenames array. For example if the playlist is being created
-     * from the filename[i] it will be added to songLibrary[i]. 
-     * Use the addPlaylist() method. 
-     * 
-     * @param filenames an array of the filenames of playlists that should be 
-     * added to the library
-     */
+
     public void addAllPlaylists(String[] filenames) {
 
         // 1. Initialize the songLibrary if it is null.
@@ -157,26 +139,6 @@ public class PlaylistLibrary {
         }
     }
 
-    /**
-     * This method adds a song to a specified playlist at a given position.
-     * 
-     * The first node of the circular linked list is at position 1, the 
-     * second node is at position 2 and so forth.
-     * 
-     * Return true if the song can be added at the given position within the 
-     * specified playlist (and thus has been added to the playlist), false 
-     * otherwise (and the song will not be added). 
-     * 
-     * Increment the size of the playlist if the song has been successfully
-     * added to the playlist.
-     * 
-     * @param playlistIndex the index where the playlist will be added
-     * @param position the position inthe playlist to which the song 
-     * is to be added 
-     * @param song the song to add
-     * @return true if the song can be added and therefore has been added, 
-     * false otherwise. 
-     */
     public boolean insertSong(int playlistIndex, int position, Song song) {
 
         // Ensure songLibrary has been initialized
@@ -225,7 +187,7 @@ public class PlaylistLibrary {
                 if (current == null || current.getNext() == null) {
                     return false;
                 }
-        }
+            }
             newNode.setNext(current.getNext());  // Set the new node's next pointer.
             current.setNext(newNode);  // Insert the new node after the current node.
 
@@ -240,84 +202,94 @@ public class PlaylistLibrary {
         return true;
     }
 
-    /**
-     * This method removes a song at a specified playlist, if the song exists. 
-     *
-     * Use the .equals() method of the Song class to check if an element of 
-     * the circular linkedlist matches the specified song.
-     * 
-     * Return true if the song is found in the playlist (and thus has been 
-     * removed), false otherwise (and thus nothing is removed). 
-     * 
-     * Decrease the playlist size by one if the song has been successfully
-     * removed from the playlist.
-     * 
-     * @param playlistIndex the playlist index within the songLibrary where 
-     * the song is to be added.
-     * @param song the song to remove.
-     * @return true if the song is present in the playlist and therefore has 
-     * been removed, false otherwise.
-     */
     public boolean removeSong(int playlistIndex, Song song) {
-        // WRITE YOUR CODE HERE
+        // Ensure songLibrary has been initialized
+        if (songLibrary == null) {
+            return false;
+        }
 
-        return false; // update the return value
+        // Step 1: Check if the playlist index is valid.
+        if (playlistIndex < 0 || playlistIndex >= songLibrary.size()) {
+            return false;
+        }
+
+        Playlist playlist = songLibrary.get(playlistIndex);
+
+        // Check if the playlist or its last node is null
+        if (playlist == null || playlist.getLast() == null) {
+            return false;
+        }
+
+        int playlistSize = playlist.getSize();
+        if (playlistSize == 0) {
+            return false; // Empty playlist, nothing to remove
+        }
+
+        SongNode current = playlist.getLast().getNext();  // Start at the first song.
+        SongNode prev = playlist.getLast();  // Initialize prev to the last song.
+
+        for (int i = 0; i < playlistSize; i++) {
+            // Check if the current song is the one to remove.
+            if (song.equals(current.getSong())) {
+                // Special case: Removing the last song in the list.
+                if (current == playlist.getLast()) {
+                    playlist.setLast(prev);
+                }
+
+                // Remove the current node by adjusting the 'next' pointer of the previous node.
+                prev.setNext(current.getNext());
+
+                // Decrease the size of the playlist.
+                playlist.setSize(playlistSize - 1);
+                return true; // Song found and removed.
+            }
+
+            // Move to the next song.
+            prev = current;
+            current = current.getNext();
+        }
+
+        return false; // Song not found in the playlist.
     }
 
-    /**
-     * This method reverses the playlist located at playlistIndex
-     * 
-     * Each node in the circular linked list will point to the element that 
-     * came before it.
-     * 
-     * After the list is reversed, the playlist located at playlistIndex will 
-     * reference the first SongNode in the original playlist (new last).
-     * 
-     * @param playlistIndex the playlist to reverse
-     */
     public void reversePlaylist(int playlistIndex) {
-        // WRITE YOUR CODE HERE
+        // Validate the index and get the playlist
+        if (playlistIndex < 0 || playlistIndex >= songLibrary.size()) {
+            System.out.println("Invalid playlist index.");
+            return;
+        }
+        Playlist playlist = songLibrary.get(playlistIndex);
+
+        // Check for empty or single-element list
+        if (playlist.getSize() <= 1) {
+            System.out.println("Playlist too small to reverse.");
+            return;
+        }
+
+        // Initialize pointers
+        SongNode previousNode = playlist.getLast();  // The last node will become the first
+        SongNode currentNode = previousNode.getNext();  // This is the actual first node of the original list
+        SongNode nextNode;
+
+        // Iterate through the list to reverse it
+        do {
+            nextNode = currentNode.getNext();
+            currentNode.setNext(previousNode);
+            previousNode = currentNode;
+            currentNode = nextNode;
+        } while (currentNode != playlist.getLast().getNext());
+
+        // Update the last node of the playlist
+        playlist.setLast(previousNode);
     }
 
-    /**
-     * This method merges two playlists.
-     * 
-     * Both playlists have songs in decreasing popularity order. The resulting 
-     * playlist will also be in decreasing popularity order.
-     * 
-     * You may assume both playlists are already in decreasing popularity 
-     * order. If the songs have the same popularity, add the song from the 
-     * playlist with the lower playlistIndex first.
-     * 
-     * After the lists have been merged:
-     *  - store the merged playlist at the lower playlistIndex
-     *  - remove playlist at the higher playlistIndex 
-     * 
-     * 
-     * @param playlistIndex1 the first playlist to merge into one playlist
-     * @param playlistIndex2 the second playlist to merge into one playlist
-     */
+
+
     public void mergePlaylists(int playlistIndex1, int playlistIndex2) {
       
         // WRITE YOUR CODE HERE
     }
 
-    /**
-     * This method shuffles a specified playlist using the following procedure:
-     * 
-     * 1. Create a new playlist to store the shuffled playlist in.
-     * 
-     * 2. While the size of the original playlist is not 0, randomly generate a number 
-     * using StdRandom.uniformInt(1, size+1). Size contains the current number
-     * of items in the original playlist.
-     * 
-     * 3. Remove the corresponding node from the original playlist and insert 
-     * it into the END of the new playlist (1 being the first node, 2 being the 
-     * second, etc). 
-     * 
-     * 4. Update the old playlist with the new shuffled playlist.
-     *
-     */
     public void shufflePlaylist(int playlistIndex) {
         // WRITE YOUR CODE HERE
 
