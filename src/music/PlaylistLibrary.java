@@ -252,7 +252,6 @@ public class PlaylistLibrary {
         return false; // Song not found in the playlist.
     }
 
-
     public void reversePlaylist(int playlistIndex) {
         // Check if the playlistIndex is valid.
         if (playlistIndex < 0 || playlistIndex >= songLibrary.size()) {
@@ -272,36 +271,81 @@ public class PlaylistLibrary {
         SongNode prev = lastNode;
         SongNode current = lastNode.getNext();
         SongNode next = null;
+        SongNode firstNode = lastNode.getNext(); // Save the first node.
 
-        int count = 0; // Debug: count the number of nodes traversed.
         do {
             next = current.getNext(); // Save the next node.
             current.setNext(prev);   // Reverse the link.
             prev = current;          // Move one step forward in the list.
             current = next;          // Move one step forward in the list.
-
-            count++; // Debug: increment the count.
-        } while (current != lastNode.getNext()); // Until we reach the starting node.
-
-        // Debug: print the count.
-        System.out.println("Nodes traversed during reversal: " + count);
+        } while (current != firstNode); // Until we reach the starting node.
 
         // Update the last node in the playlist.
-        playlist.setLast(lastNode);
+        playlist.setLast(firstNode);
     }
 
-
-
-
     public void mergePlaylists(int playlistIndex1, int playlistIndex2) {
-      
-        // WRITE YOUR CODE HERE
+        // Validate playlist indices
+        if (playlistIndex1 < 0 || playlistIndex1 >= songLibrary.size() ||
+                playlistIndex2 < 0 || playlistIndex2 >= songLibrary.size()) {
+            throw new IllegalArgumentException("Invalid playlist index.");
+        }
+
+        // Identify which playlist has the lower index
+        int lowerIndex = Math.min(playlistIndex1, playlistIndex2);
+        int higherIndex = Math.max(playlistIndex1, playlistIndex2);
+
+        Playlist lowerPlaylist = songLibrary.get(lowerIndex);
+        Playlist higherPlaylist = songLibrary.get(higherIndex);
+
+        // Initialize pointers
+        SongNode mergedLast = null;
+        SongNode lowerCurrent = lowerPlaylist.getLast().getNext(); // head of lowerPlaylist
+        SongNode higherCurrent = higherPlaylist.getLast().getNext(); // head of higherPlaylist
+
+        // Merge playlists while both are not empty
+        while (lowerCurrent != lowerPlaylist.getLast().getNext() && higherCurrent != higherPlaylist.getLast().getNext()) {
+            SongNode nextToAdd; // Next node to add to the merged playlist
+
+            // Compare the popularity of the current songs in both playlists
+            if (lowerCurrent.getSong().getPopularity() >= higherCurrent.getSong().getPopularity()) {
+                nextToAdd = lowerCurrent;
+                lowerCurrent = lowerCurrent.getNext();
+            } else {
+                nextToAdd = higherCurrent;
+                higherCurrent = higherCurrent.getNext();
+            }
+
+            // Add nextToAdd to the merged playlist
+            if (mergedLast == null) {
+                mergedLast = nextToAdd;
+                mergedLast.setNext(mergedLast); // Initialize the circular linked list
+            } else {
+                nextToAdd.setNext(mergedLast.getNext());
+                mergedLast.setNext(nextToAdd);
+                mergedLast = nextToAdd; // Update the last node
+            }
+        }
+
+        // Append the non-empty playlist to the merged playlist
+        SongNode remainingCurrent = (lowerCurrent != lowerPlaylist.getLast().getNext()) ? lowerCurrent : higherCurrent;
+        Playlist remainingPlaylist = (lowerCurrent != lowerPlaylist.getLast().getNext()) ? lowerPlaylist : higherPlaylist;
+
+        if (mergedLast == null) {
+            mergedLast = remainingPlaylist.getLast(); // The merged playlist is the remaining playlist
+        } else {
+            mergedLast.getNext().setNext(remainingCurrent); // Append the remaining playlist
+            mergedLast.setNext(remainingPlaylist.getLast()); // Update the last node
+        }
+
+        // Update the playlists in songLibrary
+        lowerPlaylist.setLast(mergedLast);
+        //removePlaylist(higherIndex); // Implement removePlaylist method as per your requirement
     }
 
     public void shufflePlaylist(int playlistIndex) {
-        // WRITE YOUR CODE HERE
-
     }
+
 
     /**
      * This method sorts a specified playlist using linearithmic sort.
